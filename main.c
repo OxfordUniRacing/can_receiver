@@ -27,9 +27,11 @@ static int qtail = 0; // end of the queue
 static int qlength = 0; // length of the queue
 static int qdataloss = 0; // count the number of messages lost
 
-/*	when handling a lot of can bus messages, the can bus transceiver buffer might be overwhelmed, 
-	and disable the can bus. One way around it is to let interrupt store 
-	the messages only, and print them in the main loop 
+/*	when handling a lot of can bus messages, the can bus transceiver 
+	buffer might be overwhelmed, and disable the can bus. 
+	One way around it is to let interrupt store the messages only, 
+	and print them in the main loop so that CAN_0_rx_callback will 
+	cost less time and able to manage more messages.
 	MODIFICATION:
 	alter callback so it only handles the storage of can messages.
 */
@@ -84,6 +86,7 @@ static void printCan(void){
 		if(qdataloss > 0){
 			len = snprintf(str, sizeof(str), "Lost %u messages\n", qdataloss);
 			io_write(uart, str, len);
+			qdataloss = 0;
 		}
 	}
 }
